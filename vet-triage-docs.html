@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyVet Direction - Contract Documents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --text-color: #2c3e50;
+            --border-color: #dee2e6;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            background: white;
+            padding: 0;
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-color);
+        }
+
+        .nav-tab.active {
+            color: var(--secondary-color);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .document {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .document.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .doc-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .doc-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 1.75rem;
+        }
+
+        .section h3 {
+            color: var(--primary-color);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .section h4 {
+            color: var(--text-color);
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .signature-block {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .signature-line {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+
+        .signature-field {
+            border-bottom: 2px solid var(--text-color);
+            padding-bottom: 0.5rem;
+            min-height: 2rem;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .milestone-table {
+            margin-top: 1rem;
+        }
+
+        .print-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        @media print {
+            .nav-tabs, .print-button, .header {
+                display: none;
+            }
+            
+            .document {
+                display: block !important;
+                page-break-after: always;
+            }
+            
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1rem;
+            }
+            
+            .signature-line {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tab {
+                font-size: 0.9rem;
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MyVet Direction</h1>
+        <p>Emergency-Ready Veterinary AI Triage - Contract Documentation</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('sow')">Statement of Work (SOW)</button>
+        <button class="nav-tab" onclick="switchTab('prd')">Product Requirements (PRD)</button>
+    </div>
+
+    <div class="container">
+        <!-- SOW Document -->
+        <div id="sow" class="document active">
+            <div class="doc-header">
+                <h2>Statement of Work (SOW)</h2>
+                <div class="doc-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Version</span>
+                        <span class="meta-value">v1.0</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">August 15, 2025</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Duration</span>
+                        <span class="meta-value">6 weeks @ ~20 hrs/week</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Total Hours</span>
+                        <span class="meta-value">~120 hours</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Objective</h2>
+                <p>Design and implement a hybrid AI triage MVP that combines:</p>
+                <ul>
+                    <li>NLP → Structured JSON extraction (LLM + Pydantic-validated output)</li>
+                    <li>A deterministic, explainable rule engine (semantic-assisted)</li>
+                </ul>
+                <p>To identify Emergency, Urgent, Sick/Monitor priorities for small-animal (dog/cat) cases, produce a traceable audit, and meet explicit clinical safety gates for emergency detection.</p>
+            </div>
+
+            <div class="section">
+                <h2>2. In-Scope Deliverables (Phase A)</h2>
+                
+                <h3>D1. Requirements & Compliance Pack</h3>
+                <ul>
+                    <li>Finalized PRD (this package) and acceptance criteria</li>
+                    <li>Security, privacy, and data-handling plan (vet triage context; GDPR/CCPA-aware)</li>
+                    <li>Third-party & open-source SBOM with license notes</li>
+                </ul>
+
+                <h3>D2. Ontology & Schema</h3>
+                <ul>
+                    <li>Vet symptom & qualifier schema (species, age bucket, reproductive status, symptom list + qualifiers)</li>
+                    <li>Mapping script (Vet terms → internal schema), with synonym table</li>
+                </ul>
+
+                <h3>D3. Extractor (LLM) MVP</h3>
+                <ul>
+                    <li>Prompt-engineered extractor service returning strict Pydantic JSON</li>
+                    <li>JSON repair/retry wrapper; unit tests; baseline metrics report on 100–200 labeled cases</li>
+                </ul>
+
+                <h3>D4. Rule Engine v0.1</h3>
+                <ul>
+                    <li>Deterministic rule graph for top emergency presentations (≈50–70 high-stakes rules from your case list)</li>
+                    <li>Semantic similarity fallback (embeddings) to normalize colloquial input</li>
+                    <li>Audit Trail JSON (which rules fired, why, and data used)</li>
+                </ul>
+
+                <h3>D5. API & Thin UI</h3>
+                <ul>
+                    <li>FastAPI endpoints: /transcribe (stub or Whisper POC), /extract, /triage</li>
+                    <li>Minimal web widget (Svelte + Vite + Tailwind) to demo intake → triage → audit trace</li>
+                </ul>
+
+                <h3>D6. Safety Gating & KPI Report</h3>
+                <ul>
+                    <li>Safety gate for Emergency: human-in-the-loop trigger when confidence < threshold</li>
+                    <li>Week-6 metrics report on hold-out set (≥ 300–600 cases if provided):
+                        <ul>
+                            <li>Emergency recall ≥ 0.95 (target), precision reported</li>
+                            <li>Extractor F1 ≥ 0.88 (target) on symptom extraction</li>
+                            <li>P95 latency ≤ 2.0 s end-to-end on test rig (excluding external ASR)</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>D7. Handover</h3>
+                <ul>
+                    <li>Deployment runbook (dev/stage), test datasets, config, and environment variables template</li>
+                    <li>Admin quick-guide for adding/editing rules; developer notes for extending schema</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>Out-of-scope (Phase A):</strong> Mobile apps, multi-language UX, EHR/PIMS integrations, insurance/payments, production SSO, SOC2 audit, full CSR console, full voice intake for emergencies (beyond POC + guardrails). These can be added in Phase B.
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>3. Project Plan & Milestones</h2>
+                <table class="milestone-table">
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Dates</th>
+                            <th>Milestone & Acceptance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>W1</td>
+                            <td>Aug 19–25</td>
+                            <td>D1 PRD + compliance pack signed; ontology draft; pgvector dev DB online; baseline k-NN latency check</td>
+                        </tr>
+                        <tr>
+                            <td>W2</td>
+                            <td>Aug 26–Sep 1</td>
+                            <td>D2 schema finalized; synonym table; extractor baseline (prompt-only) with JSON validation & tests</td>
+                        </tr>
+                        <tr>
+                            <td>W3</td>
+                            <td>Sep 2–8</td>
+                            <td>LoRA/parameter-efficient tuning (if data available); metrics ≥ baseline; rule engine scaffolding + first 30 rules</td>
+                        </tr>
+                        <tr>
+                            <td>W4</td>
+                            <td>Sep 9–15</td>
+                            <td>Rule engine v0.1 (50–70 emergency rules) with audit trace; semantic fallback wired</td>
+                        </tr>
+                        <tr>
+                            <td>W5</td>
+                            <td>Sep 16–22</td>
+                            <td>API + thin UI; end-to-end flow; preliminary KPI run on hold-out set</td>
+                        </tr>
+                        <tr>
+                            <td>W6</td>
+                            <td>Sep 23–30</td>
+                            <td>Safety gate + KPI report; triage demo; handover package (runbook, guides, datasets)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>4. Client Responsibilities</h2>
+                <ul>
+                    <li>Provide de-identified labeled triage cases (goal 600) and SME time (≥ 4 hrs/week) for rule validation.</li>
+                    <li>Provide infrastructure access (cloud project or on-prem) and designate a security contact.</li>
+                    <li>Confirm legal/privacy posture for supplied data; designate decision-maker for acceptance sign-off.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>5. Assumptions</h2>
+                <ul>
+                    <li>Target species: dogs and cats.</li>
+                    <li>Language: English only in Phase A.</li>
+                    <li>Analytics and model artifacts may be stored in client cloud buckets.</li>
+                    <li>Whisper/ASR used as POC only; emergency routing depends on text confirmation (guardrails in place).</li>
+                    <li>All triage outputs carry a medical disclaimer and are for informational purposes with escalation instructions.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. Acceptance Criteria</h2>
+                <ul>
+                    <li><strong>Functional:</strong> MVP runs end-to-end via API + demo UI; rules fire deterministically; audit JSON present for every decision.</li>
+                    <li><strong>Quality:</strong> Targets as listed in D6 (recall/F1/latency); unit tests ≥ 70% coverage across extractor/rules.</li>
+                    <li><strong>Documentation:</strong> Runbook + admin guide complete and usable by client staff.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>7. Timeline & Hours</h2>
+                <ul>
+                    <li>~120 hours over 6 calendar weeks (~20 hrs/week).</li>
+                    <li>Work windows and cadences coordinated with Client PM; weekly status notes and live demo at milestone gates.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>8. Pricing & Payment</h2>
+                <ul>
+                    <li><strong>Rate:</strong> $210/hour (principal AI/ML + tech lead).</li>
+                    <li><strong>Not-to-Exceed (NTE):</strong> $25,200 for Phase A labor (120 hrs).</li>
+                    <li><strong>Infrastructure:</strong> billed at cost (GPU/compute, storage) with prior approval; initial estimate for Phase A is ≤ $2,000 (can be $0 if client allocates existing capacity).</li>
+                    <li><strong>Invoicing:</strong> bi-weekly; Net 15. Overage hours require written change order.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>9. Change Control</h2>
+                <p>Any scope/timeline/cost change requires a mutually signed change order specifying: change description, impact, and revised NTE if applicable.</p>
+            </div>
+
+            <div class="section">
+                <h2>10. IP & Licensing</h2>
+                <ul>
+                    <li>Client owns deliverable code, rule base, configuration, and fine-tuned weights created under this SOW upon full payment.</li>
+                    <li>Contractor retains rights to pre-existing tools, generic libraries, and know-how (non-client-specific) licensed to Client under a perpetual, royalty-free license.</li>
+                    <li>Third-party licenses (open-source or SaaS) remain under their original terms; SBOM provided.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>11. Confidentiality, Security, & Compliance</h2>
+                <ul>
+                    <li>Mutual NDA in force.</li>
+                    <li>Data handled per security plan (encrypted at rest/in transit; least-privilege access; logs without PII).</li>
+                    <li>Outputs include disclaimers; emergency recommendations include "seek immediate veterinary care / ER" language and escalation steps.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>12. Warranty & Limitation</h2>
+                <ul>
+                    <li>Workmanlike services warranty for 30 days post-delivery.</li>
+                    <li>No clinical guarantees; model performance bounded by supplied data and acceptance thresholds.</li>
+                    <li>No liability for indirect or consequential damages.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>13. Termination</h2>
+                <p>Either party may terminate with 10 business days' notice. Client pays for work performed through effective termination date.</p>
+            </div>
+
+            <div class="section">
+                <h2>14. Signatures</h2>
+                <div class="signature-block">
+                    <div class="signature-line">
+                        <div class="signature-field">Client:</div>
+                        <div class="signature-field">Title:</div>
+                        <div class="signature-field">Date: ___/___/2025</div>
+                    </div>
+                    <div class="signature-line">
+                        <div class="signature-field">Contractor:</div>
+                        <div class="signature-field">Title:</div>
+                        <div class="signature-field">Date: ___/___/2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRD Document -->
+        <div id="prd" class="document">
+            <div class="doc-header">
+                <h2>Product Requirements Document (PRD)</h2>
+                <div class="doc-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Product</span>
+                        <span class="meta-value">MyVet Direction - Hybrid AI Veterinary Triage (MVP)</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Version</span>
+                        <span class="meta-value">v1.0</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">August 15, 2025</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Owner</span>
+                        <span class="meta-value">Product/Program (Client) & Contractor (Tech Lead)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>1. Executive Summary</h2>
+                <p>MyVet Direction enables clinical-grade veterinary triage by pairing LLM-based language understanding with a deterministic, explainable rule engine. Pet-owner language is converted into structured medical facts, evaluated against vetted emergency/urgent rules with semantic assistance, and returned with a clear priority and a full audit trace. MVP targets dogs & cats, English, and web demo interfaces.</p>
+            </div>
+
+            <div class="section">
+                <h2>2. Goals & KPIs</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Goal</th>
+                            <th>KPI (MVP Target)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Detect emergencies reliably</td>
+                            <td>Emergency recall ≥ 0.95 on blinded hold-out set (≥ 300–600 cases)</td>
+                        </tr>
+                        <tr>
+                            <td>Accurate symptom extraction</td>
+                            <td>F1 ≥ 0.88 for key symptoms/qualifiers</td>
+                        </tr>
+                        <tr>
+                            <td>Deterministic decisions</td>
+                            <td>100% of triage results include audit JSON (rules fired, evidence)</td>
+                        </tr>
+                        <tr>
+                            <td>Responsiveness</td>
+                            <td>P95 latency ≤ 2.0 s (API request → response) excluding external ASR</td>
+                        </tr>
+                        <tr>
+                            <td>Safety</td>
+                            <td>Guardrails enforce human-in-loop when confidence < threshold or rule conflict</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>3. Users & Personas</h2>
+                <ul>
+                    <li><strong>Pet Owner (Alex):</strong> initiates symptom description via web widget.</li>
+                    <li><strong>CSR (Jordan):</strong> can use the same flow to structure calls.</li>
+                    <li><strong>Vet Admin (Dr. Lee):</strong> reviews rules/audit traces; approves rule updates.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>4. Out-of-Scope (MVP)</h2>
+                <ul>
+                    <li>Native mobile apps; multi-language; clinic EHR/PIMS integrations; payments/insurance.</li>
+                    <li>Production SSO; SOC2 certification.</li>
+                    <li>Voice intake for emergencies beyond POC + safety filters.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>5. Functional Requirements</h2>
+
+                <h3>FR-1 NLP → JSON Extractor</h3>
+                <ul>
+                    <li><strong>Input:</strong> free text (and, for POC, audio → text).</li>
+                    <li><strong>Output:</strong> Pydantic-validated JSON symptoms with qualifiers (e.g., frequency, severity, color), plus context (species/age/repro if stated).</li>
+                    <li><strong>Behavior:</strong> deterministic temperature, JSON repair on model drift, synonym normalization.</li>
+                </ul>
+
+                <h3>FR-2 Rule Evaluation Engine (Deterministic + Semantic Assist)</h3>
+                <ul>
+                    <li>Deterministic rule graph for Emergency & Urgent coverage of high-stakes cases (derived from your case list).</li>
+                    <li>Semantic equivalence via embeddings (e.g., "tired" → lethargy) to prevent false negatives.</li>
+                    <li>Priority resolver: selects highest-risk outcome when multiple rules match.</li>
+                    <li>Output: priority, audit JSON (rules fired, evidence, conflicts), next best question when confidence < threshold.</li>
+                </ul>
+
+                <h3>FR-3 Safety & Escalation</h3>
+                <ul>
+                    <li>If extractor confidence < Θ or rules conflict, set priority to "Escalate for human review" and show ER guidance when symptoms are life-threatening.</li>
+                    <li>Always show instructive next steps and ER clinic search link placeholder (no live integration in MVP).</li>
+                </ul>
+
+                <h3>FR-4 API & Demo UI</h3>
+                <ul>
+                    <li><strong>Endpoints:</strong>
+                        <ul>
+                            <li>POST /extract → structured symptoms JSON</li>
+                            <li>POST /triage → priority + audit JSON</li>
+                            <li>POST /transcribe → transcript (POC only)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Demo UI:</strong> (Svelte + Vite + Tailwind): text box + optional audio upload, result card with priority badge, collapsible audit trace.</li>
+                </ul>
+
+                <h3>FR-5 Admin/Operations</h3>
+                <ul>
+                    <li>Rule files in version control with change logs.</li>
+                    <li>Simple admin script/CLI to add/edit rules and regenerate embeddings index.</li>
+                    <li>Metrics endpoint /metrics (Prometheus) for latency and error rates.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. Non-Functional Requirements</h2>
+                <ul>
+                    <li><strong>Performance:</strong> P95 ≤ 2.0 s; throughput ≥ 10 RPS on dev rig.</li>
+                    <li><strong>Reliability:</strong> graceful degradation if semantic index unavailable (fallback to exact rules).</li>
+                    <li><strong>Security/Privacy:</strong> HTTPS, token-auth, least-privilege; no PII stored by default.</li>
+                    <li><strong>Explainability:</strong> audit JSON required for every decision.</li>
+                    <li><strong>Accessibility:</strong> WCAG 2.2 AA basics in demo UI (labels, contrast, keyboard nav).</li>
+                    <li><strong>Observability:</strong> structured logs, tracing (OpenTelemetry), /healthz endpoint.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>7. Data Model (Pydantic Sketch)</h2>
+                <div class="code-block">
+class Priority(str, Enum):
+    emergency = "Emergency"
+    urgent = "Urgent"
+    sick = "Sick"
+    routine = "Routine"
+    review = "Review"
+
+class Symptom(BaseModel):
+    name: str
+    present: bool = True
+    qualifiers: dict[str, str] | None = None
+
+class Intake(BaseModel):
+    species: Literal["dog","cat"] | None = None
+    age_bucket: Literal["puppy/kitten","young","adult","senior"] | None = None
+    reproductive_code: int | None = None
+    free_text: str
+
+class TriageResult(BaseModel):
+    priority: Priority
+    audit: list[str]                 # rules fired, reasoning
+    follow_up: list[str] | None = None
+    confidence: float | None = None
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>8. Rule Engine Scope (MVP)</h2>
+                <ul>
+                    <li><strong>Emergency clusters:</strong> respiratory distress (open-mouth breathing, cyanosis), repeated vomiting not holding water, seizures now, severe bleeding, bloat/GDV suspicion, pyometra red flags, urinary obstruction (male cat), acute neuro deficits, obvious fracture, severe pain.</li>
+                    <li><strong>Urgent clusters:</strong> persistent productive cough with colored sputum, eye discharge + swelling, suspected colitis, suspected endocrine crises (Addison's/Cushing's) indicators, fever + swollen joint.</li>
+                    <li><strong>Sick/Monitor exemplars:</strong> intermittent vomiting with normal appetite, motion sickness only, hairball pattern in cats, diet change sensitivity.</li>
+                    <li><strong>Each rule:</strong> id, criteria (normalized symptoms/qualifiers), priority, explanation, next_questions, references (internal).</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>9. Architecture (MVP)</h2>
+                <ul>
+                    <li><strong>Backend:</strong> FastAPI (Python 3.12), Postgres + pgvector for embeddings, Redis for session state.</li>
+                    <li><strong>Extractor:</strong> LLM (open-weight) via local inference or approved API; temperature 0; JSON-repair.</li>
+                    <li><strong>Rule Engine:</strong> forward-chaining over normalized facts + cosine similarity fallback.</li>
+                    <li><strong>DevOps:</strong> Docker, docker-compose (dev), GitHub Actions CI, Prometheus/Grafana for metrics.</li>
+                    <li><strong>Front-end:</strong> Svelte + Vite + Tailwind; minimal demo only.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>10. API Contracts (selected)</h2>
+                <h4>POST /extract</h4>
+                <div class="code-block">
+Request: 
+{ 
+    "intake": { 
+        "free_text": "my dog is vomiting every hour", 
+        "species": "dog" 
+    } 
+}
+
+Response: 
+{ 
+    "symptoms": [
+        {
+            "name": "vomiting",
+            "present": true,
+            "qualifiers": {
+                "frequency": "hourly"
+            }
+        }
+    ], 
+    "context": {
+        "species": "dog"
+    } 
+}
+                </div>
+
+                <h4>POST /triage</h4>
+                <div class="code-block">
+Request: 
+{ 
+    "intake": {
+        ... as above ...
+    } 
+}
+
+Response: 
+{ 
+    "priority": "Emergency",
+    "audit": [
+        "R34: puppy+vomiting>3x → Emergency"
+    ], 
+    "follow_up": [
+        "Is the abdomen distended?"
+    ], 
+    "confidence": 0.97 
+}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>11. Testing & Acceptance</h2>
+                <ul>
+                    <li><strong>Datasets:</strong> client-supplied de-identified cases; targets as in KPIs.</li>
+                    <li><strong>Unit tests:</strong> extractor JSON validity; rule firing determinism; semantic threshold behavior.</li>
+                    <li><strong>Integration tests:</strong> end-to-end triage for golden paths across Emergency/Urgent/Sick.</li>
+                    <li><strong>Performance tests:</strong> latency at P50/P95 with concurrency (k6 or Locust).</li>
+                    <li><strong>Safety tests:</strong> ensure Emergency triggers when any life-threat symptom present.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>12. Risks & Mitigations</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Risk</th>
+                            <th>Mitigation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Insufficient labeled data</td>
+                            <td>Active learning loop; SME labeling sprints; synthetic augmentation for non-critical symptoms</td>
+                        </tr>
+                        <tr>
+                            <td>ASR hallucinations</td>
+                            <td>Text-only fallback for emergency routing; cross-check with rules before classifying as Emergency</td>
+                        </tr>
+                        <tr>
+                            <td>Domain drift (seasonal illnesses)</td>
+                            <td>Monthly rule review cycle; embeddings refresh job</td>
+                        </tr>
+                        <tr>
+                            <td>Over-reliance on LLM</td>
+                            <td>Deterministic rules as primary; LLM only for extraction & synonyms</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>13. Rollout & Handover (MVP)</h2>
+                <ul>
+                    <li>Demo in staging; UAT by SMEs; KPI report; handover session & materials.</li>
+                    <li><strong>Phase B options (post-MVP):</strong> CSR console, multilingual, integrations, mobile, production SSO, SOC2, insurance APIs.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>14. Glossary</h2>
+                <ul>
+                    <li><strong>Audit JSON:</strong> Machine-readable explanation of which rules fired and why.</li>
+                    <li><strong>Emergency recall:</strong> % of true emergencies correctly labeled as Emergency.</li>
+                    <li><strong>Semantic fallback:</strong> Using embeddings to map colloquial terms to canonical symptom names.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-button" onclick="window.print()">
+        📄 Print Documents
+    </button>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all documents
+            const documents = document.querySelectorAll('.document');
+            documents.forEach(doc => doc.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected document
+            document.getElementById(tabName).classList.add('active');
+            
+            // Mark selected tab as active
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Add smooth scrolling for internal links
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href^="#"]');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
