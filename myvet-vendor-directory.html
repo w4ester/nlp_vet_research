@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MyVet Direction | Veterinary AI Implementation Partners</title>
+<style>
+  :root{
+    --bg:#0b0e13;
+    --card:#10151d;
+    --ink:#e6edf3;
+    --muted:#b2bdc8;
+    --brand:#16a34a; /* vet green */
+    --brand-2:#3498db; /* medical blue */
+    --emergency:#ef4444;
+    --urgent:#f59e0b;
+    --chip:#1b2230;
+    --border:#1e2735;
+    --ok:#16a34a;
+    --warn:#f59e0b;
+    --bad:#ef4444;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius: 16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font: 15px/1.5 ui-sans-serif, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, system-ui;
+    color:var(--ink);
+    background: radial-gradient(1000px 600px at 10% -10%, rgba(22,163,74,.3), rgba(22,163,74,0)) , radial-gradient(800px 600px at 110% -20%, rgba(52,152,219,.15), rgba(52,152,219,0)) , var(--bg);
+  }
+  header{
+    position: sticky; top:0; z-index: 5;
+    backdrop-filter: saturate(160%) blur(8px);
+    background: linear-gradient(180deg, rgba(11,14,19,.85), rgba(11,14,19,.6));
+    border-bottom:1px solid var(--border);
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  .topbar{
+    display:grid;gap:12px;align-items:center;
+    grid-template-columns: 1fr auto;
+  }
+  h1{font-size:20px;margin:0;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px}
+  .search{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px
+  }
+  .search input{
+    flex:1; min-width:240px; padding:12px 14px;border:1px solid var(--border);
+    background:#0f1622;color:var(--ink); border-radius:12px; outline:none;
+  }
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{
+    padding:8px 10px;border:1px solid var(--border);background:var(--chip);
+    border-radius:999px;color:var(--muted);font-size:12px;cursor:pointer;user-select:none
+  }
+  .chip.active{border-color:var(--brand); color:#fff}
+  .grid{
+    display:grid; gap:16px; padding:18px 0 28px;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(22,163,74,.08), rgba(52,152,219,.05) 60%, rgba(52,152,219,.03));
+    border:1px solid var(--border); border-radius: var(--radius);
+    padding:16px; box-shadow: var(--shadow); transition: transform .12s ease, border-color .12s ease;
+  }
+  .card:hover{ transform: translateY(-2px); border-color: #2a3650 }
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;font-size:11px;
+    padding:6px 8px;border-radius:999px;background:#111826;border:1px solid var(--border); color:var(--muted)
+  }
+  .badge.emergency{background:var(--emergency);color:#fff;border-color:var(--emergency)}
+  .badge.urgent{background:var(--urgent);color:#fff;border-color:var(--urgent)}
+  .logo{
+    width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+    font-weight:700;background:#151c29;border:1px solid var(--border); color:#c9d4e0;
+  }
+  .name{font-weight:700;margin:10px 0 2px;font-size:16px}
+  .subtitle{color:var(--muted);font-size:13px;margin-bottom:10px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+  .tag{font-size:11px;padding:5px 7px;border-radius:999px;background:#0f1622;border:1px dashed #223047;color:#b7c3cf}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    appearance:none;border:1px solid var(--border); background:#121a27;color:#e7eef7;
+    padding:9px 12px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px
+  }
+  .btn.brand{background:linear-gradient(90deg,var(--brand),var(--brand-2)); border-color:transparent}
+  .btn.ghost{background:#0f1622}
+  /* Modal */
+  dialog{
+    width:min(920px, 96vw); border:1px solid var(--border); border-radius:20px;
+    padding:0; background:#0f1420; color:var(--ink); box-shadow:var(--shadow);
+  }
+  .sheet{padding:22px}
+  .close{
+    position:absolute; right:16px; top:12px; background:#131a27; border:1px solid var(--border);
+    border-radius:10px; color:#c7d3df; padding:6px 10px; cursor:pointer;
+  }
+  .sheet h2{margin:0 0 4px 0}
+  .sheet .mini{color:var(--muted); margin:0 0 14px 0}
+  .grid-2{display:grid; gap:18px; grid-template-columns: 1.2fr .8fr}
+  .section{border:1px solid var(--border);background:#0c121d;border-radius:14px;padding:14px}
+  .section h3{margin:0 0 8px 0; font-size:14px; letter-spacing:.2px}
+  ul{margin:8px 0 0 18px; padding:0}
+  li{margin:6px 0}
+  .kv{display:grid; grid-template-columns: 120px 1fr; gap:8px; font-size:13px; color:var(--muted)}
+  .kv div b{color:#e9f0f7}
+  .footerActions{display:flex; gap:10px; justify-content:flex-end; padding:14px 22px 18px; border-top:1px solid var(--border)}
+  /* Print styles (one-pager) */
+  @media print{
+    body{background:#fff;color:#000}
+    dialog{width:auto; box-shadow:none; border:none}
+    .close, header, .footerActions{display:none !important}
+    .sheet{padding:0}
+    @page{size:auto;margin:0.5in}
+  }
+  /* Dark mode friendly focus */
+  :focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+  /* Small helpers */
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#111826;border:1px solid var(--border);font-size:12px;color:#c3ceda}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .hr{height:1px;background:var(--border);margin:12px 0}
+  .metric-card{
+    background:#0a1019;padding:10px;border-radius:10px;margin:5px 0;
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;
+  }
+  .metric-value{font-weight:700;color:var(--brand)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>🐾 MyVet Direction: Veterinary AI Implementation Partners</h1>
+        <div class="sub">Browse implementation partners for AI-powered veterinary triage. Click a card for detailed SOW, KPIs, and milestones.</div>
+      </div>
+      <div class="row">
+        <span class="pill" title="Clinical Safety"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2l2.5 5.5L18 8l-4 4.5L15 18l-5-2.5L5 18l1-5.5L2 8l5.5-.5z" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/></svg>Clinical-Grade Triage</span>
+      </div>
+    </div>
+    <div class="search" role="search" aria-label="Search and filter">
+      <input id="q" placeholder="Search partners, capabilities, species coverage…" />
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="grid" class="grid" aria-live="polite"></div>
+</main>
+
+<dialog id="modal" aria-modal="true">
+  <form method="dialog">
+    <button class="close" aria-label="Close">✕</button>
+  </form>
+  <div class="sheet" id="sheet" role="document" aria-labelledby="title"></div>
+  <div class="footerActions">
+    <button class="btn ghost" id="copyLinkBtn">Copy Link</button>
+    <button class="btn" id="printBtn">Print One-Pager</button>
+  </div>
+</dialog>
+
+<script>
+const TAGS = [
+  "Triage Engine","LLM/NLP","Emergency Detection","Rule Engine","Integration",
+  "Telemedicine","24/7 Support","Multi-Species","Exotic Pets","AAHA Certified",
+  "SOC2","HIPAA","Cloud","On-Premise","Edge/Mobile"
+];
+
+const VENDORS = [
+  {
+    id:"vetai-core",
+    name:"VetAI Core",
+    subtitle:"Complete Triage Platform • Emergency Detection",
+    overview:"Full-stack veterinary triage with 0.95+ emergency recall. Hybrid LLM + deterministic rules.",
+    timeline:"6 weeks (2w MVP, 4w hardening)",
+    team:"Vet SME, ML Engineer, Backend, QA",
+    pricing:"$14,400 fixed (120 hrs @ $120/hr)",
+    tags:["Triage Engine","Emergency Detection","LLM/NLP","Rule Engine"],
+    scope:[
+      "50+ emergency detection rules (GDV, obstruction, toxins)",
+      "NLP symptom extraction from owner language",
+      "Audit trail for every decision",
+      "Follow-up question generation",
+      "Safety gates for red-flag symptoms"
+    ],
+    kpis:[
+      "Emergency recall ≥ 0.95",
+      "Emergency precision ≥ 0.99 (FPR < 1%)",
+      "P95 latency < 2.0s",
+      "F1 ≥ 0.88 on symptom extraction"
+    ],
+    milestones:[
+      {name:"Week 1-2",items:["Schema design","Extractor MVP","25 ER rules"]},
+      {name:"Week 3-4",items:["50+ rules","Semantic fallback","API/UI"]},
+      {name:"Week 5-6",items:["Safety gates","Validation","Handover"]}
+    ],
+    acceptance:[
+      "Pass 650+ case validation set",
+      "Clinical safety policy implemented",
+      "Full audit trail on every decision"
+    ],
+    priority:"emergency"
+  },
+  {
+    id:"pawsitive-ai",
+    name:"Pawsitive AI",
+    subtitle:"Multi-Species Coverage • Exotic Pets",
+    overview:"Extends triage to rabbits, ferrets, birds, reptiles. Specialized rule sets per species.",
+    timeline:"4-5 weeks",
+    team:"Exotic Vet SME, ML Eng, Data Scientist",
+    pricing:"$12,000 milestone-based",
+    tags:["Multi-Species","Exotic Pets","Rule Engine"],
+    scope:[
+      "Species-specific rule sets (rabbits, ferrets, birds, reptiles)",
+      "Stasis detection for rabbits",
+      "Egg-binding detection for birds",
+      "Metabolic bone disease for reptiles",
+      "Species classifier from description"
+    ],
+    kpis:[
+      "Species classification ≥ 98% accuracy",
+      "Emergency recall ≥ 0.92 per species",
+      "Cover 12+ exotic species"
+    ],
+    milestones:[
+      {name:"Discovery",items:["Species taxonomy","Rule inventory"]},
+      {name:"Build",items:["Species rules","Validation sets"]},
+      {name:"Ship",items:["Integration","Documentation"]}
+    ],
+    acceptance:[
+      "12+ species covered with rules",
+      "Validation on 50+ cases per species",
+      "Integration with core triage"
+    ]
+  },
+  {
+    id:"televetconnect",
+    name:"TeleVet Connect",
+    subtitle:"Telemedicine Integration • Video Triage",
+    overview:"Connects triage to video consults with on-call vets. Queue management by priority.",
+    timeline:"5-6 weeks",
+    team:"Full-stack, DevOps, Integration Eng",
+    pricing:"$15,000 + monthly SaaS",
+    tags:["Telemedicine","Integration","24/7 Support"],
+    scope:[
+      "WebRTC video integration",
+      "Priority queue management",
+      "Vet dashboard with triage context",
+      "Session recording for records",
+      "Payment processing integration"
+    ],
+    kpis:[
+      "Emergency → vet connection < 2 min",
+      "Video quality ≥ 720p stable",
+      "Queue SLA adherence ≥ 99%"
+    ],
+    milestones:[
+      {name:"Design",items:["Queue architecture","Video infrastructure"]},
+      {name:"Build",items:["WebRTC setup","Dashboard","Payment flow"]},
+      {name:"Launch",items:["Load testing","SLA verification"]}
+    ],
+    acceptance:[
+      "500+ concurrent sessions supported",
+      "HIPAA-compliant recording",
+      "SLA targets met for 2 weeks"
+    ]
+  },
+  {
+    id:"vetguard-compliance",
+    name:"VetGuard Compliance",
+    subtitle:"HIPAA • SOC2 • State Regulations",
+    overview:"Ensures compliance across all 50 states + Canada. Audit-ready documentation.",
+    timeline:"3-4 weeks",
+    team:"Compliance Officer, Security Eng, Legal Advisor",
+    pricing:"$8,000 fixed + annual audit",
+    tags:["HIPAA","SOC2","Integration"],
+    scope:[
+      "HIPAA compliance audit & remediation",
+      "SOC2 Type II preparation",
+      "State veterinary board requirements",
+      "Data retention policies",
+      "Consent management system"
+    ],
+    kpis:[
+      "Pass HIPAA audit",
+      "SOC2 evidence collection 100%",
+      "Zero compliance violations"
+    ],
+    milestones:[
+      {name:"Audit",items:["Gap analysis","Risk assessment"]},
+      {name:"Remediate",items:["Policy implementation","Technical controls"]},
+      {name:"Certify",items:["Documentation","Training"]}
+    ],
+    acceptance:[
+      "Clean HIPAA audit report",
+      "SOC2 readiness confirmed",
+      "Policies documented and deployed"
+    ]
+  },
+  {
+    id:"emergivet",
+    name:"EmergiVet",
+    subtitle:"24/7 Emergency Network • ER Handoffs",
+    overview:"Direct integration with 5000+ emergency clinics. Warm handoffs with triage data.",
+    timeline:"6-8 weeks",
+    team:"Integration Team, Partnerships, Support",
+    pricing:"$20,000 setup + revenue share",
+    tags:["24/7 Support","Emergency Detection","Integration"],
+    scope:[
+      "ER clinic directory API",
+      "Real-time availability checking",
+      "Triage data handoff protocol",
+      "SMS/call routing to nearest ER",
+      "Follow-up tracking system"
+    ],
+    kpis:[
+      "5000+ clinics in network",
+      "Handoff success rate ≥ 95%",
+      "ER acknowledgment < 30 seconds"
+    ],
+    milestones:[
+      {name:"Partner",items:["Clinic outreach","API agreements"]},
+      {name:"Integrate",items:["Directory build","Handoff protocol"]},
+      {name:"Scale",items:["National coverage","24/7 support"]}
+    ],
+    acceptance:[
+      "Coast-to-coast coverage verified",
+      "Handoff protocol tested with 100+ clinics",
+      "SLA agreements in place"
+    ]
+  },
+  {
+    id:"vetcloud-infra",
+    name:"VetCloud Infrastructure",
+    subtitle:"Scalable Cloud • Auto-scaling • CDN",
+    overview:"AWS/Azure deployment with global CDN. Handles 100K+ concurrent triages.",
+    timeline:"4-5 weeks",
+    team:"DevOps Lead, Cloud Architect, SRE",
+    pricing:"$10,000 setup + usage-based",
+    tags:["Cloud","Integration","SOC2"],
+    scope:[
+      "Multi-region deployment (US/EU/APAC)",
+      "Auto-scaling for traffic spikes",
+      "CDN for < 100ms global latency",
+      "Disaster recovery setup",
+      "Cost optimization"
+    ],
+    kpis:[
+      "99.99% uptime SLA",
+      "P95 global latency < 100ms",
+      "RTO < 1 hour, RPO < 5 minutes"
+    ],
+    milestones:[
+      {name:"Architect",items:["Region selection","DR planning"]},
+      {name:"Deploy",items:["Infrastructure as code","CDN setup"]},
+      {name:"Optimize",items:["Cost tuning","Performance testing"]}
+    ],
+    acceptance:[
+      "Load test: 100K concurrent users",
+      "DR drill successful",
+      "Cost within 20% of estimate"
+    ]
+  },
+  {
+    id:"petedge-mobile",
+    name:"PetEdge Mobile",
+    subtitle:"iOS/Android Apps • Offline Triage",
+    overview:"Native mobile apps with offline-first triage. Works without connection.",
+    timeline:"8-10 weeks",
+    team:"iOS Dev, Android Dev, Mobile QA, Designer",
+    pricing:"$25,000 fixed",
+    tags:["Edge/Mobile","Integration"],
+    scope:[
+      "Native iOS app (Swift)",
+      "Native Android app (Kotlin)",
+      "Offline triage engine",
+      "Photo symptom detection",
+      "Push notifications for follow-ups"
+    ],
+    kpis:[
+      "App store rating ≥ 4.5",
+      "Offline accuracy within 5% of online",
+      "App size < 50MB"
+    ],
+    milestones:[
+      {name:"Design",items:["UX research","Mockups","Offline strategy"]},
+      {name:"Develop",items:["Core features","Offline engine","Testing"]},
+      {name:"Launch",items:["Store submission","Marketing","Support"]}
+    ],
+    acceptance:[
+      "Both stores approved",
+      "Offline mode validated",
+      "Crash rate < 0.1%"
+    ]
+  },
+  {
+    id:"vetsense-analytics",
+    name:"VetSense Analytics",
+    subtitle:"Clinical Insights • Population Health",
+    overview:"Analytics dashboard for clinics. Track trends, outcomes, population health.",
+    timeline:"4-5 weeks",
+    team:"Data Analyst, Frontend Dev, Vet Epidemiologist",
+    pricing:"$12,000 + monthly license",
+    tags:["Integration","AAHA Certified"],
+    scope:[
+      "Real-time triage analytics dashboard",
+      "Disease outbreak detection",
+      "Seasonal trend analysis",
+      "Outcome tracking post-triage",
+      "Custom reports for clinics"
+    ],
+    kpis:[
+      "Dashboard load time < 2s",
+      "Outbreak detection < 24 hrs",
+      "Report accuracy ≥ 99%"
+    ],
+    milestones:[
+      {name:"Design",items:["KPI selection","Dashboard wireframes"]},
+      {name:"Build",items:["ETL pipeline","Visualizations","Alerting"]},
+      {name:"Deploy",items:["Clinic onboarding","Training"]}
+    ],
+    acceptance:[
+      "10+ clinics using dashboard",
+      "Automated weekly reports",
+      "Alerting system validated"
+    ]
+  },
+  {
+    id:"whiskerwatch",
+    name:"WhiskerWatch",
+    subtitle:"Continuous Monitoring • Wearables",
+    overview:"Integrates with pet wearables for continuous health monitoring and early detection.",
+    timeline:"6-8 weeks",
+    team:"IoT Engineer, Data Scientist, Firmware Dev",
+    pricing:"$18,000 + device costs",
+    tags:["Edge/Mobile","Integration"],
+    scope:[
+      "FitBark/Whistle API integration",
+      "Continuous vital monitoring",
+      "Anomaly detection algorithms",
+      "Automatic triage triggers",
+      "Trend analysis for chronic conditions"
+    ],
+    kpis:[
+      "False positive rate < 5%",
+      "Battery impact < 10%",
+      "Detection lead time > 24 hrs"
+    ],
+    milestones:[
+      {name:"Integrate",items:["Device APIs","Data pipeline"]},
+      {name:"Develop",items:["ML models","Alert logic"]},
+      {name:"Validate",items:["Field testing","Calibration"]}
+    ],
+    acceptance:[
+      "3+ device brands supported",
+      "1000+ hours monitoring data",
+      "Clinical validation study complete"
+    ]
+  },
+  {
+    id:"vetvoice-nlp",
+    name:"VetVoice NLP",
+    subtitle:"Voice-First Triage • Multilingual",
+    overview:"Voice-activated triage in 12 languages. Whisper ASR + clinical NLP.",
+    timeline:"5-6 weeks",
+    team:"NLP Researcher, Voice UX, Linguist",
+    pricing:"$15,000 fixed",
+    tags:["LLM/NLP","Integration"],
+    scope:[
+      "Whisper ASR integration",
+      "12 language support",
+      "Clinical term recognition",
+      "Accent/dialect handling",
+      "Voice-based follow-ups"
+    ],
+    kpis:[
+      "WER < 5% for clinical terms",
+      "Language detection ≥ 98%",
+      "Response time < 500ms"
+    ],
+    milestones:[
+      {name:"Research",items:["Corpus collection","Baseline ASR"]},
+      {name:"Develop",items:["Fine-tuning","Language models"]},
+      {name:"Deploy",items:["API endpoints","Documentation"]}
+    ],
+    acceptance:[
+      "12 languages validated",
+      "Clinical vocabulary coverage ≥ 95%",
+      "Stress tested with 100+ accents"
+    ]
+  },
+  {
+    id:"petprotect-insurance",
+    name:"PetProtect Insurance",
+    subtitle:"Insurance Integration • Claims Automation",
+    overview:"Connects triage to pet insurance for instant pre-approval and claims.",
+    timeline:"6-7 weeks",
+    team:"Integration Eng, Insurance Specialist, Backend",
+    pricing:"$16,000 + transaction fees",
+    tags:["Integration","24/7 Support"],
+    scope:[
+      "Insurance provider APIs (10+ carriers)",
+      "Instant coverage verification",
+      "Pre-approval for emergency care",
+      "Automated claim submission",
+      "Cost estimates by procedure"
+    ],
+    kpis:[
+      "Pre-approval time < 30 seconds",
+      "Claim acceptance rate ≥ 90%",
+      "10+ carriers integrated"
+    ],
+    milestones:[
+      {name:"Partner",items:["Carrier agreements","API access"]},
+      {name:"Build",items:["Verification flow","Claims engine"]},
+      {name:"Launch",items:["Carrier testing","Go-live support"]}
+    ],
+    acceptance:[
+      "All major carriers integrated",
+      "1000+ test claims processed",
+      "Error rate < 1%"
+    ]
+  },
+  {
+    id:"smartvet-home",
+    name:"SmartVet Home",
+    subtitle:"Home Care Instructions • Follow-up",
+    overview:"Generates personalized home care plans with video tutorials and reminders.",
+    timeline:"3-4 weeks",
+    team:"Content Team, Video Producer, Frontend",
+    pricing:"$8,000 fixed + content updates",
+    tags:["Integration","24/7 Support"],
+    scope:[
+      "500+ home care protocols",
+      "Video tutorial library",
+      "Medication reminders",
+      "Progress tracking",
+      "Vet check-in scheduling"
+    ],
+    kpis:[
+      "Protocol coverage ≥ 95%",
+      "Video engagement ≥ 70%",
+      "Compliance rate ≥ 80%"
+    ],
+    milestones:[
+      {name:"Content",items:["Protocol writing","Video production"]},
+      {name:"Platform",items:["CMS setup","App integration"]},
+      {name:"Launch",items:["User testing","Feedback loop"]}
+    ],
+    acceptance:[
+      "500 protocols live",
+      "100+ videos produced",
+      "Reminder system validated"
+    ]
+  },
+  {
+    id:"lablink-diagnostics",
+    name:"LabLink Diagnostics",
+    subtitle:"Lab Integration • Results Interpretation",
+    overview:"Connects to major lab providers for result integration and AI interpretation.",
+    timeline:"5-6 weeks",
+    team:"Integration Eng, Clinical Pathologist, Data Eng",
+    pricing:"$14,000 setup + per-result fee",
+    tags:["Integration","AAHA Certified"],
+    scope:[
+      "IDEXX/Antech API integration",
+      "Automated result ingestion",
+      "AI result interpretation",
+      "Critical value alerting",
+      "Trend analysis over time"
+    ],
+    kpis:[
+      "Result sync < 5 minutes",
+      "Interpretation accuracy ≥ 94%",
+      "Critical alert time < 30 seconds"
+    ],
+    milestones:[
+      {name:"Connect",items:["Lab APIs","Data mapping"]},
+      {name:"Interpret",items:["ML models","Validation"]},
+      {name:"Alert",items:["Critical paths","Notifications"]}
+    ],
+    acceptance:[
+      "Both major labs connected",
+      "10,000+ results processed",
+      "Clinical validation complete"
+    ]
+  },
+  {
+    id:"rxvet-pharmacy",
+    name:"RxVet Pharmacy",
+    subtitle:"Pharmacy Network • Prescription Routing",
+    overview:"Routes prescriptions to 8000+ pharmacies with price comparison.",
+    timeline:"4-5 weeks",
+    team:"Pharmacy Relations, Integration Eng, Compliance",
+    pricing:"$12,000 + transaction fee",
+    tags:["Integration","24/7 Support"],
+    scope:[
+      "Pharmacy network integration",
+      "Real-time price comparison",
+      "E-prescribing compliance",
+      "Refill management",
+      "Drug interaction checking"
+    ],
+    kpis:[
+      "8000+ pharmacies connected",
+      "Price accuracy ≥ 98%",
+      "Prescription routing < 60 seconds"
+    ],
+    milestones:[
+      {name:"Network",items:["Pharmacy partnerships","API setup"]},
+      {name:"Platform",items:["Routing engine","Price API"]},
+      {name:"Comply",items:["E-prescribing cert","State requirements"]}
+    ],
+    acceptance:[
+      "Network coverage verified",
+      "Compliance in all 50 states",
+      "Transaction testing complete"
+    ]
+  },
+  {
+    id:"eduvet-training",
+    name:"EduVet Training",
+    subtitle:"Staff Training • Certification Program",
+    overview:"Comprehensive training program for clinic staff on AI triage system.",
+    timeline:"2-3 weeks",
+    team:"Vet Educator, Instructional Designer, LMS Admin",
+    pricing:"$6,000 per clinic",
+    tags:["AAHA Certified","24/7 Support"],
+    scope:[
+      "8-hour certification program",
+      "Role-based training paths",
+      "Hands-on simulation labs",
+      "Competency assessments",
+      "Ongoing education credits (CE)"
+    ],
+    kpis:[
+      "Completion rate ≥ 90%",
+      "Assessment pass rate ≥ 85%",
+      "Satisfaction score ≥ 4.5/5"
+    ],
+    milestones:[
+      {name:"Design",items:["Curriculum development","Materials creation"]},
+      {name:"Deliver",items:["Training sessions","Labs","Assessment"]},
+      {name:"Certify",items:["Certificates","CE credits","Support"]}
+    ],
+    acceptance:[
+      "All staff certified",
+      "CE credits approved",
+      "Support materials delivered"
+    ]
+  }
+];
+
+// --- UI Logic ---
+const grid = document.getElementById("grid");
+const chips = document.getElementById("chips");
+const q = document.getElementById("q");
+const modal = document.getElementById("modal");
+const sheet = document.getElementById("sheet");
+const printBtn = document.getElementById("printBtn");
+const copyLinkBtn = document.getElementById("copyLinkBtn");
+
+let activeTags = new Set();
+
+function renderChips(){
+  chips.innerHTML = "";
+  TAGS.forEach(tag=>{
+    const el = document.createElement("button");
+    el.className = "chip";
+    el.textContent = tag;
+    el.setAttribute("aria-pressed","false");
+    el.onclick = ()=>{
+      if(activeTags.has(tag)){ activeTags.delete(tag); el.classList.remove("active"); el.setAttribute("aria-pressed","false"); }
+      else { activeTags.add(tag); el.classList.add("active"); el.setAttribute("aria-pressed","true"); }
+      renderGrid();
+    };
+    chips.appendChild(el);
+  });
+}
+
+function matches(v, term){
+  if(!term) return true;
+  const hay = (v.name+" "+v.subtitle+" "+v.overview+" "+v.tags.join(" ")+" "+v.scope.join(" ")+" "+v.kpis.join(" ")).toLowerCase();
+  return hay.includes(term.toLowerCase());
+}
+
+function tagMatch(v){
+  if(activeTags.size===0) return true;
+  return [...activeTags].some(t=>v.tags.includes(t));
+}
+
+function cardHTML(v){
+  const badgeClass = v.priority === 'emergency' ? 'badge emergency' : 
+                      v.priority === 'urgent' ? 'badge urgent' : 'badge';
+  const badgeText = v.priority === 'emergency' ? '🚨 Emergency Focus' : v.timeline;
+  
+  return `
+    <div class="card" role="article" aria-labelledby="${v.id}-name">
+      <span class="${badgeClass}" aria-label="Timeline">${badgeText}</span>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+        <div class="logo" aria-hidden="true">${v.name.charAt(0)}${v.name.includes(' ') ? v.name.split(' ')[1].charAt(0) : v.name.charAt(1)}</div>
+        <div>
+          <div id="${v.id}-name" class="name">${v.name}</div>
+          <div class="subtitle">${v.subtitle}</div>
+        </div>
+      </div>
+      <div class="tags">${v.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <p style="color:var(--muted);margin:6px 0 8px;">${v.overview}</p>
+      <div class="btns">
+        <button class="btn brand" data-view="${v.id}">View SOW</button>
+        <button class="btn ghost" data-share="${v.id}">Share</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGrid(){
+  const term = q.value.trim();
+  const list = VENDORS.filter(v=>matches(v,term)&&tagMatch(v));
+  grid.innerHTML = list.map(cardHTML).join("");
+  grid.querySelectorAll("[data-view]").forEach(btn=>{
+    btn.onclick = ()=>openModal(btn.dataset.view);
+  });
+  grid.querySelectorAll("[data-share]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const url = new URL(location.href);
+      url.hash = btn.dataset.share;
+      navigator.clipboard.writeText(url.toString());
+      btn.textContent = "Copied!";
+      setTimeout(()=>btn.textContent="Share",1200);
+    };
+  });
+  if(list.length===0){
+    grid.innerHTML = `<div class="sub" style="opacity:.8">No matches. Try clearing filters.</div>`;
+  }
+}
+
+function sectionList(title, items){
+  return `
+    <div class="section"><h3>${title}</h3>
+      <ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul>
+    </div>
+  `;
+}
+
+function milestonesGrid(ms){
+  return `
+    <div class="section"><h3>Milestones</h3>
+      <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+        ${ms.map(m=>`
+          <div class="section" style="background:#0a1019">
+            <b style="font-size:13px">${m.name}</b>
+            <ul style="margin-left:15px;font-size:12px">${m.items.map(i=>`<li>${i}</li>`).join("")}</ul>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function kpiCards(kpis){
+  return `
+    <div class="section"><h3>Key Performance Indicators</h3>
+      ${kpis.map(k=>`
+        <div class="metric-card">
+          <div>${k}</div>
+          <div class="metric-value">✓</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+let currentVendor = null;
+
+function openModal(id){
+  const v = VENDORS.find(x=>x.id===id);
+  if(!v) return;
+  currentVendor = v;
+  location.hash = v.id;
+  sheet.innerHTML = `
+    <h2 id="title">${v.name}</h2>
+    <p class="mini">${v.subtitle}</p>
+    <div class="row" style="margin-bottom:10px;">
+      <span class="pill" title="Timeline">📅 ${v.timeline}</span>
+      <span class="pill" title="Team">👥 ${v.team}</span>
+      <span class="pill" title="Pricing">💰 ${v.pricing}</span>
+    </div>
+    <div class="hr"></div>
+    <div class="grid-2" style="margin-top:10px">
+      <div class="col">
+        ${sectionList("Scope of Work", v.scope)}
+        ${kpiCards(v.kpis)}
+        ${milestonesGrid(v.milestones)}
+      </div>
+      <div class="col">
+        <div class="section">
+          <h3>Overview</h3>
+          <p style="margin:6px 0 0">${v.overview}</p>
+        </div>
+        <div class="section">
+          <h3>Acceptance Criteria</h3>
+          <ul>${v.acceptance.map(a=>`<li>${a}</li>`).join("")}</ul>
+        </div>
+        <div class="section">
+          <h3>Capabilities</h3>
+          <div class="tags">${v.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        </div>
+        <div class="section" style="background:rgba(22,163,74,0.1);border-color:var(--brand)">
+          <h3>Clinical Safety Notice</h3>
+          <p style="font-size:13px;margin-top:8px">This system provides triage guidance only and is not a substitute for licensed veterinary care. No diagnosis or prescriptions. Emergency symptoms trigger immediate clinic referral.</p>
+        </div>
+        <div class="section">
+          <h3>Request Proposal</h3>
+          <p style="font-size:13px">Contact: partners@myvetdirection.com<br>Include: Clinic size, case volume, integration needs, timeline</p>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.showModal();
+  sheet.querySelector("h2").focus?.();
+}
+document.querySelector(".close").onclick=()=>{ modal.close(); };
+modal.addEventListener("click",(e)=>{ if(e.target===modal) modal.close(); });
+
+printBtn.onclick = ()=>{
+  if(!currentVendor) return;
+  window.print();
+};
+
+copyLinkBtn.onclick = ()=>{
+  if(!currentVendor) return;
+  const url = new URL(location.href);
+  url.hash = currentVendor.id;
+  navigator.clipboard.writeText(url.toString());
+  copyLinkBtn.textContent = "Link Copied";
+  setTimeout(()=>copyLinkBtn.textContent = "Copy Link", 1200);
+};
+
+q.addEventListener("input", renderGrid);
+
+// Deep link support
+window.addEventListener("hashchange", ()=>{
+  const id = location.hash.replace("#","");
+  if(!id) return;
+  const v = VENDORS.find(x=>x.id===id);
+  if(v) openModal(id);
+});
+
+renderChips();
+renderGrid();
+
+// Open on load if hash present
+const initial = location.hash.replace("#","");
+if(initial){ setTimeout(()=>openModal(initial), 40); }
+</script>
+</body>
+</html>
